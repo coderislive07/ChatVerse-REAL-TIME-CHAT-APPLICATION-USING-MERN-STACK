@@ -1,7 +1,3 @@
-
-Memory updated
-Got it! Here's a tailored README for your Real-Time Chat Application:
-
 Real-Time Chat Application
 Overview
 This Real-Time Chat Application is built using the MERN stack (MongoDB, Express.js, React.js, Node.js) with additional integrations for real-time communication via Socket.IO and SMS notifications through Twilio. The application allows users to engage in live chat and receive notifications directly on their mobile devices.
