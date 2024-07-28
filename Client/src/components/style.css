@@ -1,10 +1,10 @@
-/* PhoneInputStyles.css */
 .react-tel-input .flag-dropdown:hover,
 .react-tel-input .selected-flag:hover,
 .react-tel-input .country-list .country:hover {
     background-color: #484a50;
     color: white;
 }
+
 
 
 

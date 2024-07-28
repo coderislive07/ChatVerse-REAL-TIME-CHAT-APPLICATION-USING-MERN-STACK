@@ -2,18 +2,14 @@ import React, { useState } from 'react';
 import login from "../../assets/login.jpg";
 import { Button } from '@/components/ui/button';
 import Login from '@/components/Login';
-
 export default function Auth() {
   const [showLogin, setShowLogin] = useState(false);
-
   const handleLogin = () => {
     setShowLogin(true);
   };
-
   const handleBack = () => {
     setShowLogin(false);
   };
-
   return (
     <>
       <div className={`auth-page ${showLogin ? 'translate-y-[-100vh]' : 'translate-y-0'} transition-transform duration-700`}>

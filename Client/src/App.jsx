@@ -1,23 +1,20 @@
-import { useState } from 'react';
-import './App.css';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Auth from './pages/auth';
 import Profile from './pages/profile';
 import Chat from './pages/chat';
-import Login from '../src/components/Login'
-import { BrowserRouter ,Routes , Route, Navigate } from 'react-router-dom';
+import Login from './components/Login';
 
 function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
-
-        <Route path="/auth"element={<Auth/>}/>
-        <Route path="/chat"element={<Chat/>}/>
-        <Route path="/profile"element={<Profile/>}/>
-        <Route path="*"element={<Navigate to ="/auth"/>}/>
-      
+        <Route path="/login" element={<Login/>} />
+        <Route path="/auth" element={<Auth/>} />
+        <Route path="/chat" element={<Chat/>} />
+        <Route path="/profile" element={<Profile/>} />
+        <Route path="*" element={<Navigate to="/auth" />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
 
