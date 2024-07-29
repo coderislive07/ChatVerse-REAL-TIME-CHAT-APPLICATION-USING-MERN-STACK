@@ -1,6 +1,8 @@
 export const createAuthSlice=(set)=>(
     {
-        userInfo:undefined,
+        userInfo:null,
         setUserInfo:(userInfo)=> set({userInfo}),
+        hasProfile: false,
+        setHasProfile: (hasProfile) => set({ hasProfile }),
     }
 )
