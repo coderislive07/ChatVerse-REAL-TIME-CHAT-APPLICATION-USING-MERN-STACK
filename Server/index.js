@@ -6,9 +6,17 @@ const twilio = require('twilio');
 const mongoose = require('mongoose');
 const redis = require('redis');
 const app = express();
+const jwt =require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
 app.use(bodyParser.json());
-app.use(cors());
-const { ACCOUNT_SID, AUTH_TOKEN, MY_TWILIO_PHONE_NUMBER, PORT, DATABASE_URL, REDIS_URL } = process.env;
+app.use(cors(
+  {
+    origin:process.env.ORIGIN ,
+    credentials:true
+  }
+));
+const { ACCOUNT_SID, AUTH_TOKEN, MY_TWILIO_PHONE_NUMBER, PORT, DATABASE_URL, REDIS_URL ,JWT_KEY} = process.env;
 const client = new twilio(ACCOUNT_SID, AUTH_TOKEN);
 const redisClient = redis.createClient({
   url: REDIS_URL,
@@ -27,6 +35,18 @@ mongoose.connect(DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true
   const User = mongoose.model('User', userSchema);
 const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000);
+};
+const authenticateToken = (req, res, next) => {
+  const token = req.cookies.jwtToken; 
+
+  if (token == null) return res.sendStatus(401); // If no token, unauthorized
+
+  jwt.verify(token, JWT_KEY, (err, user) => {
+    if (err) return res.sendStatus(403); // If invalid token, forbidden
+
+    req.user = user; // Attach user info to request
+    next(); // Proceed to the next middleware/route
+  });
 };
 app.post('/send-otp', async (req, res) => {
   const { phoneNumber } = req.body;
@@ -51,34 +71,72 @@ app.post('/send-otp', async (req, res) => {
       res.status(500).send({ success: false, "state":"verified",error: "Failed to send OTP!", phoneNumber });
     });
 });
+app.get('/check-auth', (req, res) => {
+  const token = req.cookies.jwtToken;
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
+  try {
+    const decoded = jwt.verify(token, JWT_KEY);
+    const userInfo = { phoneNumber: decoded.phoneNumber };
+    const hasProfile = true; // or fetch from DB if needed
+    res.status(200).json({ success: true, userInfo, hasProfile });
+  } catch (error) {
+    res.status(401).json({ success: false, message: 'Invalid token' });
+  }
+});
+
 app.post('/verify-otp', async (req, res) => {
   const { phoneNumber, userOTP } = req.body;
   const key = phoneNumber.toString();
   let storedOTP = await redisClient.get(key);
+
   if (storedOTP == null) {
     return res.status(500).send({ success: false, state: "EXPIRED", error: "Error verifying OTP" });
   }
+
   storedOTP = JSON.parse(storedOTP);
+
   if (storedOTP.otp === userOTP) {
     redisClient.del(key);
+
     let user = await User.findOne({ phoneNumber });
-    if (user) {
-      return res.send({ success: true, hasProfile: Boolean(user.profile) });
-    } else {
+    let hasProfile = Boolean(user && user.profile);
+
+    if (!user) {
       user = new User({ phoneNumber, profile: true });
       try {
         await user.save();
         console.log("User saved to MongoDB successfully");
-        return res.send({ success: true, hasProfile: false });
+        hasProfile = false;
       } catch (err) {
         console.error("Error saving user to MongoDB:", err);
         return res.status(500).send({ success: false, error: "Failed to save user to database" });
       }
     }
+
+    // Generate JWT token
+    const token = jwt.sign({ phoneNumber: user.phoneNumber }, JWT_KEY, {
+      expiresIn: '1d', // Set token expiration as needed
+    });
+
+    // Set the token as an HTTP-only cookie
+    res.cookie('jwtToken', token, {
+      httpOnly: true, // Accessible only by the server
+      secure: true, // Ensures the cookie is sent over HTTPS only
+      sameSite: 'Strict', // Ensures the cookie is sent only in a first-party context
+      maxAge: 24 * 60 * 60 * 1000 , // 1 day expiration
+    });
+
+
+
+    return res.send({ success: true, hasProfile });
   } else {
     return res.status(200).send({ success: false, state: "INVALID", error: "Invalid OTP" });
   }
 });
+
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
-});
+}); 
