@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import boy from "../../assets/boy.png"
+import axios from 'axios';
+
+import { useAppStore } from '@/store';
 
 const LeftArrow = ({onClick}) => (
   <svg
@@ -13,15 +16,16 @@ const LeftArrow = ({onClick}) => (
     <path d="M24 12.001H2.914l5.294-5.295-.707-.707L1 12.501l6.5 6.5.707-.707-5.293-5.293H24v-1z" data-name="Left" />
   </svg>
 );
-
-
+const axiosInstance = axios.create({
+  baseURL: import.meta.env.VITE_REACT_APP_API_URL, 
+  withCredentials: true,
+});
 export default function Profile() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [profileImage, setProfileImage] = useState(null);
   const navigate =useNavigate();
-
-
+  const { setHasProfile } = useAppStore();
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -32,16 +36,37 @@ export default function Profile() {
       reader.readAsDataURL(file);
     }
   };
+  const handleSubmit = async () => {
+    try {
+      const token = document.cookie.split('=')[1]; // Get JWT from cookie
+      const response = await axiosInstance.post('/update-profile', {
+        firstName,
+        lastName,
+        profileImage,
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`, // Attach JWT token
+        }
+      });
 
-  const handleSubmit = () => {
-    console.log({ firstName, lastName, profileImage });
+      if (response.data.success) {
+        console.log('Profile updated successfully');
+        setHasProfile(true);
+        navigate('/chat'); 
+      } else {
+        console.error('Profile update failed:', response.data.message);
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    }
   };
+  
 
   return (
     <>
           <div><LeftArrow onClick={() => navigate('/chat')} /></div>
 
-    <div className="bg-[#1b1c24] h-[100vh] flex items-center justify-center">
+    <div data-aos="slide-left"  data-aos-offset="200" data-aos-easing="ease-in-sine" data-aos-duration="600" className="bg-[#1b1c24] h-[100vh] flex items-center justify-center">
       <div className="bg-[#2c2f38] p-8 rounded-lg shadow-lg w-[90%] max-w-[500px]">
         <h2 className="text-white text-2xl mb-6 text-center">Create Your Profile</h2>
         <div className="flex items-center justify-center w-full mb-7">

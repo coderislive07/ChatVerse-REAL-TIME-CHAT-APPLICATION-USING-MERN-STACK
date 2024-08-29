@@ -69,10 +69,12 @@
 }
 
 
-*{
-  font-family: "Noto Sans", sans-serif;
-  font-optical-sizing: auto;
+@font-face {
+  font-family: 'Poppins
+  src: url('./Fonts/Poppins-Regular.ttf) format('truetype');
+  font-weight: normal;
   font-style: normal;
-  font-variation-settings:
-    "wdth" 100;
+}
+body {
+  font-family: 'Poppins-Black.ttf';
 }

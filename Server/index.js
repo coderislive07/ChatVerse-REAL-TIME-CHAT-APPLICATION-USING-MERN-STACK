@@ -29,9 +29,13 @@ mongoose.connect(DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true
   .then(() => console.log('Connected to MongoDB'))
   .catch((err) => console.log('MongoDB connection error:', err));
   const userSchema = new mongoose.Schema({
-    phoneNumber: {type:String,required:true},
-    profile: {type:Boolean,default:false}, 
+    phoneNumber: { type: String, required: true },
+    profile: { type: Boolean, default: false },
+    firstName: { type: String },
+    lastName: { type: String },
+    profileImage: { type: String } 
   });
+  
   const User = mongoose.model('User', userSchema);
 const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000);
@@ -47,7 +51,7 @@ const authenticateToken = (req, res, next) => {
     req.user = user; // Attach user info to request
     next(); // Proceed to the next middleware/route
   });
-};
+};  
 app.post('/send-otp', async (req, res) => {
   const { phoneNumber } = req.body;
   console.log("My Phone Number is:::", phoneNumber);
@@ -85,7 +89,6 @@ app.get('/check-auth', (req, res) => {
     res.status(401).json({ success: false, message: 'Invalid token' });
   }
 });
-
 app.post('/verify-otp', async (req, res) => {
   const { phoneNumber, userOTP } = req.body;
   const key = phoneNumber.toString();
@@ -127,14 +130,33 @@ app.post('/verify-otp', async (req, res) => {
       sameSite: 'Strict', // Ensures the cookie is sent only in a first-party context
       maxAge: 24 * 60 * 60 * 1000 , // 1 day expiration
     });
-
-
-
     return res.send({ success: true, hasProfile });
   } else {
     return res.status(200).send({ success: false, state: "INVALID", error: "Invalid OTP" });
   }
 });
+app.post('/update-profile', authenticateToken, async (req, res) => {
+  const { phoneNumber } = req.user; // phoneNumber extracted from the JWT token
+  const { firstName, lastName, profileImage } = req.body;
+
+  try {
+    const user = await User.findOneAndUpdate(
+      { phoneNumber },
+      { firstName, lastName, profileImage, profile: true },
+      { new: true } // Return the updated document
+    );
+
+    if (!user) {
+      return res.status(404).send({ success: false, message: 'User not found' });
+    }
+
+    res.send({ success: true, message: 'Profile updated successfully', user });
+  } catch (err) {
+    console.error('Error updating profile:', err);
+    res.status(500).send({ success: false, message: 'Server error' });
+  }
+});
+
 
 
 app.listen(PORT, () => {

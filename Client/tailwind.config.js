@@ -16,7 +16,12 @@ module.exports = {
         "2xl": "1400px",
       },
     },
+
     extend: {
+      backgroundImage:
+      {
+        'svgimage':''
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -76,6 +81,7 @@ module.exports = {
         'spacing': 'margin, padding',
       },
     },
+
   },
   plugins: [require("tailwindcss-animate")],
 }
