@@ -1,0 +1,14 @@
+.contacts:hover{
+    color:white;
+    transition: 0.2s;
+}
+.pen:hover
+{
+  color:rgb(134, 129, 129);
+  transition: 0.3s;
+}
+.power:hover
+{
+  stroke: gray;
+  transition: 0.3s;
+}

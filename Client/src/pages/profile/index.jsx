@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import boy from "../../assets/boy.png"
 import axios from 'axios';
+import Resizer from 'react-image-file-resizer';
 
 import { useAppStore } from '@/store';
 
@@ -29,13 +30,22 @@ export default function Profile() {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result);
-      };
-      reader.readAsDataURL(file);
+      Resizer.imageFileResizer(
+        file,
+        150, // width
+        150, // height
+        'JPEG', // format
+        100, // quality
+        0, // rotation
+        (uri) => {
+          setProfileImage(uri); // resized image uri
+        },
+        'base64' // output type
+      );
     }
   };
+
+  
   const handleSubmit = async () => {
     try {
       const token = document.cookie.split('=')[1]; // Get JWT from cookie

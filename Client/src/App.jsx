@@ -8,6 +8,9 @@ import "aos/dist/aos.css";
 import Login from './components/Login';
 import { useAppStore } from './store';
 import axios from 'axios';
+import ProfileInfo from './pages/chat/components/contacts-container/components/profileinfo';
+
+// Function to check token and restore session
 const checkTokenAndRestoreSession = async (setUserInfo, setHasProfile, setLoading) => {
   try {
     const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API_URL}/check-auth`, { withCredentials: true });
@@ -18,56 +21,95 @@ const checkTokenAndRestoreSession = async (setUserInfo, setHasProfile, setLoadin
   } catch (error) {
     console.log("Error restoring session:", error);
   } finally {
-    setLoading(false); 
+    setLoading(false);
   }
 };
 
-const PrivateRoute = ({ children }) => {
+// AuthRoute Component
+const AuthRoute = ({ children }) => {
   const { userInfo, hasProfile } = useAppStore();
   const isAuthenticated = !!userInfo;
-  const currentPath = window.location.pathname;
+  const isProfileComplete = !!hasProfile;
 
-  if (!isAuthenticated) {
-    return <Navigate to="/auth" />;
-  } else if (isAuthenticated && !hasProfile && currentPath !== '/profile') {
-    return <Navigate to="/profile" />;
-  } else if (isAuthenticated && hasProfile && currentPath !== '/chat') {
+  if (isAuthenticated && isProfileComplete) {
     return <Navigate to="/chat" />;
+  } else if (isAuthenticated && !isProfileComplete) {
+    return <Navigate to="/profile" />;
   } else {
     return children;
   }
 };
 
-
-const AuthRoute = ({ children }) => {
-  const { userInfo , hasProfile } = useAppStore();
+// PrivateRoute Component
+const PrivateRoute = ({ children, requiredRoute }) => {
+  const { userInfo, hasProfile } = useAppStore();
   const isAuthenticated = !!userInfo;
-  return isAuthenticated && hasProfile ? <Navigate to="/chat" /> : children;
+  const isProfileComplete = !!hasProfile;
+
+  if (!isAuthenticated) {
+    return <Navigate to="/auth" replace />;
+  }
+  
+  if (isAuthenticated && requiredRoute === "/profile" && isProfileComplete) {
+    return <Navigate to="/chat" replace />;
+  }
+  
+  if (isAuthenticated && requiredRoute === "/chat" && !isProfileComplete) {
+    return <Navigate to="/profile" replace />;
+  }
+
+  return children;
 };
 
 function App() {
   const { setUserInfo, setHasProfile } = useAppStore();
   const [loading, setLoading] = useState(true);
+  const [allowProfileAccess, setAllowProfileAccess] = useState(false);
+  
   useEffect(() => {
     AOS.init();
     AOS.refresh();
   }, []);
-
+  
   useEffect(() => {
     checkTokenAndRestoreSession(setUserInfo, setHasProfile, setLoading);
   }, [setUserInfo, setHasProfile]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
 
+ 
   return (
     <Router>
+          {/* <ProfileInfo handleNavigateProfile={handleNavigateProfile}   /> */}
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/auth" element={<AuthRoute><Auth /></AuthRoute>} />
-        <Route path="/chat" element={<PrivateRoute><Chat /></PrivateRoute>} />
-        <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+        <Route path="/auth"    element={
+            {allowProfileAccess} ? (
+              
+                <Auth />
+              
+            ) : (
+              <AuthRoute >
+                <Auth />
+              </AuthRoute>
+            )
+          } />
+        <Route 
+          path="/chat" 
+          element={<PrivateRoute requiredRoute="/chat" ><Chat /></PrivateRoute>} 
+        />
+        <Route 
+          path="/profile" 
+          element={
+            {allowProfileAccess} ? (
+              <PrivateRoute>
+                <Profile />
+              </PrivateRoute>
+            ) : (
+              <PrivateRoute requiredRoute="/profile">
+                <Profile />
+              </PrivateRoute>
+            )
+          }
+        />
         <Route path="*" element={<Navigate to="/auth" />} />
       </Routes>
     </Router>

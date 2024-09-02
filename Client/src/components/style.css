@@ -28,7 +28,7 @@
     border-radius: 15px;
   }  
 
-  .button {
+  .black-button {
     --black-700: transparent;
     --border_radius: 9999px;
     --transtion: 0.3s ease-in-out;
@@ -52,7 +52,7 @@
     transition: transform var(--transtion);
   }
   
-  .button::before {
+  .black-button::before {
     content: "";
     position: absolute;
     top: 50%;
@@ -73,7 +73,7 @@
     z-index: 0;
   }
   
-  .button::after {
+  .black-button::after {
     content: "";
     position: absolute;
     top: 50%;
@@ -100,14 +100,14 @@
     z-index: 2;
   }
   
-  .button:is(:hover, :focus-visible) {
+  .black-button:is(:hover, :focus-visible) {
     --active: 1;
   }
-  .button:active {
+  .black-button:active {
     transform: scale(1);
   }
   
-  .button .dots_border {
+  .black-button .dots_border {
     --size_border: calc(100% + 2px);
   
     overflow: hidden;
@@ -126,7 +126,7 @@
     z-index: -10;
   }
   
-  .button .dots_border::before {
+  .black-button .dots_border::before {
     content: "";
     position: absolute;
     top: 30%;
@@ -149,14 +149,14 @@
     }
   }
   
-  .button .sparkle {
+  .black-button .sparkle {
     position: relative;
     z-index: 10;
   
     width: 1.75rem;
   }
   
-  .button .sparkle .path {
+  .black-button .sparkle .path {
     fill: currentColor;
     stroke: currentColor;
   
@@ -165,18 +165,18 @@
     color: hsl(0, 0%, 100%);
   }
   
-  .button:is(:hover, :focus) .sparkle .path {
+  .black-button:is(:hover, :focus) .sparkle .path {
     animation: path 1.5s linear 0.5s infinite;
     cursor: pointer;
   }
   
-  .button .sparkle .path:nth-child(1) {
+  .black-button .sparkle .path:nth-child(1) {
     --scale_path_1: 1.2;
   }
-  .button .sparkle .path:nth-child(2) {
+  .black-button .sparkle .path:nth-child(2) {
     --scale_path_2: 1.2;
   }
-  .button .sparkle .path:nth-child(3) {
+  .black-button .sparkle .path:nth-child(3) {
     --scale_path_3: 1.2;
   }
   
@@ -198,9 +198,10 @@
     }
   }
   
-  .button .text_button {
+  .black-button .text_black-button {
     position: relative;
     z-index: 10;
+    margin-left: 12px;
   
     background-image: linear-gradient(
       90deg,
@@ -209,21 +210,14 @@
     );
     background-clip: text;
     margin-left: -24px;
-
-
-  
     font-size: 1.1rem;
-  
   }
-
 .design-container {
-    
     height: 320px;
     margin-top: -220px;
     margin-right: 430px;
     font-family: Arial, Helvetica, sans-serif;
   }
-  
   .design-wrapper {
     position: absolute;
     display: -webkit-box;
@@ -326,7 +320,7 @@
     gap: 0.5rem;
   }
   
-  .button {
+  .rgbutton {
     height: 40px;
     width: 40px;
     max-width: 40px;
@@ -335,16 +329,17 @@
     border-radius: 100%;
   }
   
-  .button:hover {
+  .rgbutton:hover {
     cursor: pointer;
   }
   
-  .button svg {
+  .rgbutton svg {
     height: 20px;
     width: 20px;
     margin: auto;
     transform: translateX(10px)translateY(10px);
     fill: #fff;
+    margin-right: 20px;
   }
   
   .deny {
@@ -355,6 +350,7 @@
     -webkit-transform: translateX(7px)translateY(10px) rotate(136deg) translate(-10%, -15%);
     -ms-transform: translateX(7px)translateY(10px) rotate(136deg) translate(-10%, -15%);
     transform: translateX(7px)translateY(10px) rotate(136deg) translate(-10%, -15%);
+    margin-right: 20px;
   }
   
   .allow {
