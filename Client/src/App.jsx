@@ -10,6 +10,7 @@ import { useAppStore } from './store';
 import axios from 'axios';
 import ProfileInfo from './pages/chat/components/contacts-container/components/profileinfo';
 
+
 // Function to check token and restore session
 const checkTokenAndRestoreSession = async (setUserInfo, setHasProfile, setLoading) => {
   try {
@@ -62,9 +63,11 @@ const PrivateRoute = ({ children, requiredRoute }) => {
 };
 
 function App() {
+  const {  isLogoutAllowed } = useAppStore();
   const { setUserInfo, setHasProfile } = useAppStore();
   const [loading, setLoading] = useState(true);
   const [allowProfileAccess, setAllowProfileAccess] = useState(false);
+
   
   useEffect(() => {
     AOS.init();
@@ -75,43 +78,15 @@ function App() {
     checkTokenAndRestoreSession(setUserInfo, setHasProfile, setLoading);
   }, [setUserInfo, setHasProfile]);
 
-
- 
+  
   return (
     <Router>
-          {/* <ProfileInfo handleNavigateProfile={handleNavigateProfile}   /> */}
-      <Routes>
-        <Route path="/auth"    element={
-            {allowProfileAccess} ? (
-              
-                <Auth />
-              
-            ) : (
-              <AuthRoute >
-                <Auth />
-              </AuthRoute>
-            )
-          } />
-        <Route 
-          path="/chat" 
-          element={<PrivateRoute requiredRoute="/chat" ><Chat /></PrivateRoute>} 
-        />
-        <Route 
-          path="/profile" 
-          element={
-            {allowProfileAccess} ? (
-              <PrivateRoute>
-                <Profile />
-              </PrivateRoute>
-            ) : (
-              <PrivateRoute requiredRoute="/profile">
-                <Profile />
-              </PrivateRoute>
-            )
-          }
-        />
-        <Route path="*" element={<Navigate to="/auth" />} />
-      </Routes>
+          <Routes>
+          <Route path="/auth" element={isLogoutAllowed?<Auth /> :<AuthRoute >< Auth /></AuthRoute >} />
+  <Route path="/chat" element={<PrivateRoute requiredRoute="/chat"><Chat /></PrivateRoute>} />
+  <Route path="/profile" element={allowProfileAccess?<PrivateRoute ><Profile /></PrivateRoute> : <PrivateRoute ><Profile /></PrivateRoute>} />
+  <Route path="*" element={<Navigate to="/auth" />} />
+</Routes>
     </Router>
   );
 }

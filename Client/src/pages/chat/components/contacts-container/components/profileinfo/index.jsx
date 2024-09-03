@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Preloader1 from '@/components/preloader/preloader1';
+import { useAppStore } from '@/store';
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_REACT_APP_API_URL,
   withCredentials: true,
 });
 const ProfileInfo = ({ }) => {
+  const { setIsLogoutAllowed } = useAppStore();
   
   const navigate = useNavigate(); 
   const [user, setUser] = useState(null);
@@ -40,19 +42,23 @@ const ProfileInfo = ({ }) => {
   const logOut = async () => {
     setIsLoading(true);
     try {
-   
+      setIsLogoutAllowed(true);
       await axiosInstance.post('/logout');
+    
+    
   
       const timer = setTimeout(() => {
         setIsLoading(false);
         navigate('/auth');
       }, 2000); 
+  
       return () => clearTimeout(timer);
     } catch (error) {
       console.error('Error during logout:', error);
       setError('Failed to log out');
     }
   };
+  
   if (isLoading) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-75">
@@ -60,9 +66,9 @@ const ProfileInfo = ({ }) => {
       </div>
     );
   }
+  
 
   return (
-    
     <div className='absolute bottom-0 h-20 flex items-center justify-between px-10 w-full bg-[#2a2b33]'>
       
       <div className='flex gap-3 items-center justify-center'>

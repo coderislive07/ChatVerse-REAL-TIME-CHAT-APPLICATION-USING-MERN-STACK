@@ -1,6 +1,6 @@
-h2 {
+#h2 {
   color: white;
-  mix-blend-mode: difference; /* Changes the color of loading text */
+  mix-blend-mode: difference; 
   text-align: center;
   margin: 0;
   font-size: 30px;
@@ -42,7 +42,5 @@ h2 {
     left: 5%;
   }
 
-  h2 {
-    font-size: 24px; /* Adjust text size for smaller screens */
-  }
+
 }

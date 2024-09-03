@@ -15,11 +15,10 @@ export default function ChatPage() {
   if (isLoading) {
     return <Preloader/>
   }
-
   return (
     <div  data-aos="slide-left" data-aos-offset="200"  data-aos-easing="ease-in-sine" data-aos-duration="400"   className='flex h-full w-full  text-white overflow-hidden'>
       <ContactsContainer />
-      {/* <EmptyChatContainer /> */}
+      {/* <EmptyChatContainer /> */}  
       <ChatContainer />
     </div>
   );
