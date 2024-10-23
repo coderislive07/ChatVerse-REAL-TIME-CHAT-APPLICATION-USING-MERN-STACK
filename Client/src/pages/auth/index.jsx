@@ -16,19 +16,22 @@ export default function Auth() {
   return (
     <>
       <div  className={`auth-page ${showLogin ? 'translate-y-[-100vh]' : 'translate-y-0'} transition-transform duration-700 `}> 
-      <div style={{ backgroundImage: `url(${pageturner})` }} className='flex  w-full h-[100vh]  transition-transform duration-700'>
+      <div
+  style={{ backgroundImage: `url(${pageturner})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat' }}
+  className='flex transition-transform duration-700 sm:h-[100vh] md:h-[67vh] lg:h-[33vh] xl:h-[100vh] 2xl:h-[100vh] '
+>
         <div className='flex pl-7 pt-4'>
         <img className='w-11 h-11' src={chatlogo}></img>
           <h1 className='text-white pl-3 pt-2 cursor-pointer text-xl font-medium '>ChatVerse</h1>
           </div>
           <div style={{marginLeft:'-150px'}} className='pt-28 '>
           <div>
-            <h1 className='text-white text-5xl pt-28  pl-14 font-medium'>Connect instantly with <br/> your loved ones</h1>
-            <p className=' pt-6 text-gray-300  pl-14 '>Experience seamless , user-firendly messaging that <br/>brings people together effortlessly.</p>
+            <h1 className='text-white sm:w-[55vh] sm:text-lg text-base md:text-xl lg:text-2xl xl:text-3xl 2xl:text-4xl font-medium pt-20 md:pt-28 pl-4 md:pl-8 lg:pl-14'>Connect instantly with <br/> your loved ones</h1>
+            <p className=' pt-6 text-gray-300  sm:pl-[7vh] '>Experience seamless , user-firendly messaging that <br/>brings people together effortlessly.</p>
           </div>
 
          
-          <div className=' px-12  py-10 '>
+          <div className=' sm:pl-[6vh]  py-10 '>
           <button onClick={handleLogin}  type="button" className="btn  ">
   <h1 className='text-white text-end font-semibold'>Start Chatting Now →</h1>
   <div id="container-stars">
@@ -46,7 +49,7 @@ export default function Auth() {
           
           </div>
     
-<div style={{marginLeft:'52rem '}} className=" card">
+<div  className=" card sm:h-[80vh] sm:ml-[60rem]  sm:w-[18vh] 2xl:ml-[130vh]">
   <ul>
     <li className="iso-pro">
       <span></span>

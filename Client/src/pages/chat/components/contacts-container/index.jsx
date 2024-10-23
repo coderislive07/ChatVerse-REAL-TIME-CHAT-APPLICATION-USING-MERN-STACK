@@ -5,7 +5,7 @@ import ProfileInfo from './components/profileinfo';
 import NewDm from './components/new-dm';
 export default function ContactsContainer() {
   return (
-    <div className='relative md:w-[35vw] lg:w-[30vw] xl:w-[20vw] max-w-[500px] bg-[#1b1c24] border-r-2 border-[#2f303b] w-full'>
+    <div className='relative md:w-[35vw] lg:w-[30vw] xl:w-[40vw] max-w-[600px] bg-[#1b1c24] border-r-2 border-[#2f303b] w-full'>
        <div className='flex pl-3 pt-3'>
         <img className='w-11 h-11' src={chatlogo}></img>
           <h1 className='text-white pl-3 pt-2 cursor-pointer text-2xl font-medium '>ChatVerse</h1>

@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const User = require('./models/User'); // Correct path to the User model
 const cors = require('cors');
 require('dotenv').config();
 const twilio = require('twilio');
@@ -8,17 +9,18 @@ const redis = require('redis');
 const app = express();
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
+const contactsRoutes=require('./routes/ContactRoutes') 
 
 app.use(cookieParser());
+app.use(express.json())
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 app.use(cors({
   origin: process.env.ORIGIN,
   credentials: true
 }));
-
+app.use('/contacts', contactsRoutes);
 const { ACCOUNT_SID, AUTH_TOKEN, MY_TWILIO_PHONE_NUMBER, PORT, DATABASE_URL, REDIS_URL, JWT_KEY } = process.env;
-
 const client = new twilio(ACCOUNT_SID, AUTH_TOKEN);
 const redisClient = redis.createClient({
   url: REDIS_URL,
@@ -33,15 +35,7 @@ mongoose.connect(DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true
   .then(() => console.log('Connected to MongoDB'))
   .catch((err) => console.log('MongoDB connection error:', err));
 
-const userSchema = new mongoose.Schema({
-  phoneNumber: { type: String, required: true },
-  profile: { type: Boolean, default: false },
-  firstName: { type: String },
-  lastName: { type: String },
-  profileImage: { type: String }
-});
 
-const User = mongoose.model('User', userSchema);
 
 const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000);

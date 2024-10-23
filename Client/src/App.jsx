@@ -11,7 +11,6 @@ import axios from 'axios';
 import ProfileInfo from './pages/chat/components/contacts-container/components/profileinfo';
 
 
-// Function to check token and restore session
 const checkTokenAndRestoreSession = async (setUserInfo, setHasProfile, setLoading) => {
   try {
     const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API_URL}/check-auth`, { withCredentials: true });

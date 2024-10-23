@@ -14,9 +14,6 @@ const ProfileInfo = ({ }) => {
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-
-
-
   useEffect(() => {
     const fetchProfileInfo = async () => {
       try {

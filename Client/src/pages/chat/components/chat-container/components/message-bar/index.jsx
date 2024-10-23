@@ -32,7 +32,7 @@ export default function MessageBar() {
     <>
       <div
         ref={emojiRef}
-        className='pt-[27.8vh] pl-9 fixed'
+        className='pt-[37.8vh] pl-9 fixed'
       >
         <EmojiPicker
           onEmojiClick={handleAddEmoji}
