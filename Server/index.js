@@ -5,11 +5,10 @@ const cors = require('cors');
 require('dotenv').config();
 const twilio = require('twilio');
 const mongoose = require('mongoose');
-const redis = require('redis');
 const app = express();
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
-const contactsRoutes=require('./routes/ContactRoutes') 
+const contactsRoutes = require('./routes/ContactRoutes');
 
 app.use(cookieParser());
 app.use(express.json())
@@ -20,22 +19,15 @@ app.use(cors({
   credentials: true
 }));
 app.use('/contacts', contactsRoutes);
-const { ACCOUNT_SID, AUTH_TOKEN, MY_TWILIO_PHONE_NUMBER, PORT, DATABASE_URL, REDIS_URL, JWT_KEY } = process.env;
-const client = new twilio(ACCOUNT_SID, AUTH_TOKEN);
-// const redisClient = redis.createClient({
-//   url: REDIS_URL,
-// });
 
-// redisClient.on('error', (err) => console.log('Redis Client Error', err));
-// redisClient.connect().then(() => {
-//   console.log('Connected to Redis');
-// });
+const { ACCOUNT_SID, AUTH_TOKEN, MY_TWILIO_PHONE_NUMBER, PORT, DATABASE_URL, JWT_KEY } = process.env;
+const client = new twilio(ACCOUNT_SID, AUTH_TOKEN);
 
 mongoose.connect(DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connected to MongoDB'))
   .catch((err) => console.log('MongoDB connection error:', err));
 
-
+const otpStore = new Map();
 
 const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000);
@@ -57,7 +49,7 @@ app.post('/send-otp', async (req, res) => {
   const { phoneNumber } = req.body;
   const otp = generateOTP();
   const key = phoneNumber.toString();
-  const data = { otp };
+  const data = { otp, expiry: Date.now() + 300000 }; // 5 minutes expiry
 
   client.messages.create({
     body: `Your OTP is ${otp}`,
@@ -65,7 +57,8 @@ app.post('/send-otp', async (req, res) => {
     to: `+91${phoneNumber}`
   })
     .then(() => {
-      redisClient.setEx(phoneNumber.toString(), 300, JSON.stringify(data));
+      otpStore.set(key, data);
+      setTimeout(() => otpStore.delete(key), 300000); // Delete after 5 minutes
       res.send({ success: true, phone: phoneNumber });
     })
     .catch(err => {
@@ -77,15 +70,14 @@ app.post('/send-otp', async (req, res) => {
 app.post('/verify-otp', async (req, res) => {
   const { phoneNumber, userOTP } = req.body;
   const key = phoneNumber.toString();
-  let storedOTP = await redisClient.get(key);
+  const storedData = otpStore.get(key);
 
-  if (storedOTP == null) {
+  if (!storedData || Date.now() > storedData.expiry) {
     return res.status(500).send({ success: false, state: "EXPIRED", error: "Error verifying OTP" });
   }
 
-  storedOTP = JSON.parse(storedOTP);
-  if (storedOTP.otp === userOTP) {
-    redisClient.del(key);
+  if (storedData.otp === userOTP) {
+    otpStore.delete(key);
 
     let user = await User.findOne({ phoneNumber });
     let hasProfile = Boolean(user && user.profile);
@@ -142,7 +134,6 @@ app.get('/check-auth', async (req, res) => {
   }
 });
 
-
 app.post('/update-profile', authenticateToken, async (req, res) => {
   const { phoneNumber } = req.user; // phoneNumber extracted from the JWT token
   const { firstName, lastName, profileImage } = req.body;
@@ -164,6 +155,7 @@ app.post('/update-profile', authenticateToken, async (req, res) => {
     res.status(500).send({ success: false, message: 'Server error' });
   }
 });
+
 app.get('/profile-info', authenticateToken, async (req, res) => {
   const { phoneNumber } = req.user;  
 
@@ -180,6 +172,7 @@ app.get('/profile-info', authenticateToken, async (req, res) => {
     res.status(500).send({ success: false, message: 'Server error' });
   }
 });
+
 app.post('/logout', (req, res) => {
   res.clearCookie('jwtToken'); // Clear the JWT cookie
   res.status(200).json({ success: true, message: 'Logged out successfully' });
