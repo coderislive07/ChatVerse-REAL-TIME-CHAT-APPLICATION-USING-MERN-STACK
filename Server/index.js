@@ -15,8 +15,10 @@ app.use(express.json())
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 app.use(cors({
-  origin: process.env.ORIGIN,
-  credentials: true
+  origin: 'https://chatversetech.vercel.app',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use('/contacts', contactsRoutes);
 
@@ -178,6 +180,7 @@ app.post('/logout', (req, res) => {
   res.status(200).json({ success: true, message: 'Logged out successfully' });
 });
 
+app.options('*', cors());
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
