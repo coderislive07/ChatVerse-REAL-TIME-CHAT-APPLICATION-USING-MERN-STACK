@@ -22,14 +22,14 @@ app.use(cors({
 app.use('/contacts', contactsRoutes);
 const { ACCOUNT_SID, AUTH_TOKEN, MY_TWILIO_PHONE_NUMBER, PORT, DATABASE_URL, REDIS_URL, JWT_KEY } = process.env;
 const client = new twilio(ACCOUNT_SID, AUTH_TOKEN);
-const redisClient = redis.createClient({
-  url: REDIS_URL,
-});
+// const redisClient = redis.createClient({
+//   url: REDIS_URL,
+// });
 
-redisClient.on('error', (err) => console.log('Redis Client Error', err));
-redisClient.connect().then(() => {
-  console.log('Connected to Redis');
-});
+// redisClient.on('error', (err) => console.log('Redis Client Error', err));
+// redisClient.connect().then(() => {
+//   console.log('Connected to Redis');
+// });
 
 mongoose.connect(DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connected to MongoDB'))
